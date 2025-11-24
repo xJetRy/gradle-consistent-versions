@@ -72,6 +72,8 @@ dependencies {
     testImplementation 'org.junit.jupiter:junit-jupiter'
     testRuntimeOnly "org.junit.vintage:junit-vintage-engine"
 
+    gradlePluginForTesting 'com.palantir.sls-packaging:gradle-sls-packaging:7.31.0'
+
     annotationProcessor "org.immutables:value"
     compileOnly "org.immutables:value::annotations"
 }
