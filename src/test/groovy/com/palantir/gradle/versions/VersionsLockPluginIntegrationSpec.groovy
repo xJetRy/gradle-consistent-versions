@@ -31,8 +31,10 @@ import static com.palantir.gradle.versions.PomUtils.makePlatformPom
 @Unroll
 class VersionsLockPluginIntegrationSpec extends IntegrationSpec {
 
+    // ***DELINEATOR FOR REVIEW: PLUGIN_NAME
     static def PLUGIN_NAME = "com.palantir.versions-lock"
 
+    // ***DELINEATOR FOR REVIEW: setup
     void setup() {
         File mavenRepo = generateMavenRepo(
                 "ch.qos.logback:logback-classic:1.2.3 -> org.slf4j:slf4j-api:1.7.25",
@@ -73,6 +75,7 @@ class VersionsLockPluginIntegrationSpec extends IntegrationSpec {
         """
     }
 
+    // ***DELINEATOR FOR REVIEW: can_write_locks
     def '#gradleVersionNumber: can write locks'() {
         setup:
         gradleVersion = gradleVersionNumber
@@ -85,6 +88,7 @@ class VersionsLockPluginIntegrationSpec extends IntegrationSpec {
         gradleVersionNumber << GRADLE_VERSIONS
     }
 
+    // ***DELINEATOR FOR REVIEW: standardSetup
     private def standardSetup() {
         addSubproject('foo', '''
             apply plugin: 'java'
@@ -114,6 +118,7 @@ class VersionsLockPluginIntegrationSpec extends IntegrationSpec {
         '''.stripIndent(true))
     }
 
+    // ***DELINEATOR FOR REVIEW: cannot_resolve_without_a_root_lock_file
     def '#gradleVersionNumber: cannot resolve without a root lock file'() {
         setup:
         gradleVersion = gradleVersionNumber
@@ -129,6 +134,7 @@ class VersionsLockPluginIntegrationSpec extends IntegrationSpec {
         gradleVersionNumber << GRADLE_VERSIONS
     }
 
+    // ***DELINEATOR FOR REVIEW: can_resolve_without_a_root_lock_file_if_lock_file_is_ignored
     def '#gradleVersionNumber: can resolve without a root lock file if lock file is ignored'() {
         setup:
         gradleVersion = gradleVersionNumber
@@ -141,6 +147,7 @@ class VersionsLockPluginIntegrationSpec extends IntegrationSpec {
         gradleVersionNumber << GRADLE_VERSIONS
     }
 
+    // ***DELINEATOR FOR REVIEW: consolidates_subproject_dependencies
     def '#gradleVersionNumber: consolidates subproject dependencies'() {
         def expectedError = "Locked by versions.lock"
         setup:
@@ -154,6 +161,7 @@ class VersionsLockPluginIntegrationSpec extends IntegrationSpec {
             }
         '''.stripIndent(true)
 
+        // ***DELINEATOR FOR REVIEW: when
         when: "I write locks"
         runTasks('resolveConfigurations', '--write-locks')
 
@@ -162,15 +170,19 @@ class VersionsLockPluginIntegrationSpec extends IntegrationSpec {
 
         ["foo", "bar"].each { verifyLockfile(file(it), "org.slf4j:slf4j-api:1.7.24") }
 
+        // ***DELINEATOR FOR REVIEW: then
         then: "Manually forced version overrides unified dependency"
         verifyLockfile(file("forced"), "org.slf4j:slf4j-api:1.7.20")
 
+        // ***DELINEATOR FOR REVIEW: then
         then: "I can resolve configurations"
         runTasks('resolveConfigurations')
 
+        // ***DELINEATOR FOR REVIEW: when
         when: "I make bar's version constraint incompatible with the force"
         BuildResult incompatible = runTasksAndFail("-Pbar_version=1.7.25", 'resolveConfigurations')
 
+        // ***DELINEATOR FOR REVIEW: then
         then: "Resolution fails"
         incompatible.output.contains(expectedError)
 
@@ -178,6 +190,7 @@ class VersionsLockPluginIntegrationSpec extends IntegrationSpec {
         gradleVersionNumber << GRADLE_VERSIONS
     }
 
+    // ***DELINEATOR FOR REVIEW: works_on_just_root_project
     def '#gradleVersionNumber: works on just root project'() {
         setup:
         gradleVersion = gradleVersionNumber
@@ -199,24 +212,30 @@ class VersionsLockPluginIntegrationSpec extends IntegrationSpec {
         gradleVersionNumber << GRADLE_VERSIONS
     }
 
+    // ***DELINEATOR FOR REVIEW: get_a_conflict_even_if_no_lock_files_applied
     def '#gradleVersionNumber: get a conflict even if no lock files applied'() {
         def expectedError = "Locked by versions.lock"
         setup:
         gradleVersion = gradleVersionNumber
         standardSetup()
 
+        // ***DELINEATOR FOR REVIEW: when
         when: "I write locks"
         runTasks('--write-locks')
 
+        // ***DELINEATOR FOR REVIEW: then
         then: "Root lock file has expected resolution result"
         file("versions.lock").text.readLines().any { it.contains('org.slf4j:slf4j-api:1.7.24') }
 
+        // ***DELINEATOR FOR REVIEW: then
         then: "I can resolve configurations"
         runTasks('resolveConfigurations')
 
+        // ***DELINEATOR FOR REVIEW: when
         when: "I make bar's version constraint incompatible with the force"
         def incompatible = runTasksAndFail("-Pbar_version=1.7.25", 'resolveConfigurations')
 
+        // ***DELINEATOR FOR REVIEW: then
         then: "Resolution fails"
         incompatible.output.contains(expectedError)
 
@@ -224,6 +243,7 @@ class VersionsLockPluginIntegrationSpec extends IntegrationSpec {
         gradleVersionNumber << GRADLE_VERSIONS
     }
 
+    // ***DELINEATOR FOR REVIEW: fails_fast_when_subproject_that_is_depended_on_has_same_name_as_root_project
     def '#gradleVersionNumber: fails fast when subproject that is depended on has same name as root project'() {
         setup:
         gradleVersion = gradleVersionNumber
@@ -255,6 +275,7 @@ class VersionsLockPluginIntegrationSpec extends IntegrationSpec {
         gradleVersionNumber << GRADLE_VERSIONS
     }
 
+    // ***DELINEATOR FOR REVIEW: fails_fast_when_multiple_subprojects_share_the_same_coordinate
     def '#gradleVersionNumber: fails fast when multiple subprojects share the same coordinate'() {
         setup:
         gradleVersion = gradleVersionNumber
@@ -279,6 +300,7 @@ class VersionsLockPluginIntegrationSpec extends IntegrationSpec {
         gradleVersionNumber << GRADLE_VERSIONS
     }
 
+    // ***DELINEATOR FOR REVIEW: addSubproject
     @Override
     File addSubproject(String name) {
         File subprojectDir = new File(projectDir, name.replace(":", "/"))
@@ -290,6 +312,7 @@ class VersionsLockPluginIntegrationSpec extends IntegrationSpec {
         return subprojectDir
     }
 
+    // ***DELINEATOR FOR REVIEW: detects_failOnVersionConflict_on_locked_configuration
     def "#gradleVersionNumber: detects failOnVersionConflict on locked configuration"() {
         setup:
         gradleVersion = gradleVersionNumber
@@ -308,6 +331,7 @@ class VersionsLockPluginIntegrationSpec extends IntegrationSpec {
         gradleVersionNumber << GRADLE_VERSIONS
     }
 
+    // ***DELINEATOR FOR REVIEW: ignores_failOnVersionConflict_on_non_locked_configuration
     def "#gradleVersionNumber: ignores failOnVersionConflict on non-locked configuration"() {
         setup:
         gradleVersion = gradleVersionNumber
@@ -329,6 +353,7 @@ class VersionsLockPluginIntegrationSpec extends IntegrationSpec {
         gradleVersionNumber << GRADLE_VERSIONS
     }
 
+    // ***DELINEATOR FOR REVIEW: fails_if_new_dependency_added_that_was_not_in_the_lock_file
     def '#gradleVersionNumber: fails if new dependency added that was not in the lock file'() {
         setup:
         gradleVersion = gradleVersionNumber
@@ -356,6 +381,7 @@ class VersionsLockPluginIntegrationSpec extends IntegrationSpec {
 
         runTasks('--write-locks')
 
+        // ***DELINEATOR FOR REVIEW: when
         when:
         file('foo/build.gradle') << """
             dependencies {
@@ -363,11 +389,13 @@ class VersionsLockPluginIntegrationSpec extends IntegrationSpec {
             }
         """.stripIndent(true)
 
+        // ***DELINEATOR FOR REVIEW: then
         then: 'Check fails because locks are not up to date'
         def failure = runTasksAndFail(':check')
         failure.task(':verifyLocks').outcome == TaskOutcome.FAILED
         failure.output.contains(expectedError)
 
+        // ***DELINEATOR FOR REVIEW: and
         and: 'Can finally write locks once again'
         runTasks('--write-locks')
         runTasks('verifyLocks')
@@ -376,6 +404,7 @@ class VersionsLockPluginIntegrationSpec extends IntegrationSpec {
         gradleVersionNumber << GRADLE_VERSIONS
     }
 
+    // ***DELINEATOR FOR REVIEW: does_not_fail_if_unifiedClasspath_is_unresolvable
     def '#gradleVersionNumber: does not fail if unifiedClasspath is unresolvable'() {
         setup:
         gradleVersion = gradleVersionNumber
@@ -399,6 +428,7 @@ class VersionsLockPluginIntegrationSpec extends IntegrationSpec {
         gradleVersionNumber << GRADLE_VERSIONS
     }
 
+    // ***DELINEATOR FOR REVIEW: fails_if_dependency_was_removed_but_still_in_the_lock_file
     def '#gradleVersionNumber: fails if dependency was removed but still in the lock file'() {
         setup:
         gradleVersion = gradleVersionNumber
@@ -427,6 +457,7 @@ class VersionsLockPluginIntegrationSpec extends IntegrationSpec {
 
         runTasks('--write-locks')
 
+        // ***DELINEATOR FOR REVIEW: when
         when:
         file('foo/build.gradle').text = """
             dependencies {
@@ -434,11 +465,13 @@ class VersionsLockPluginIntegrationSpec extends IntegrationSpec {
             }
         """.stripIndent(true)
 
+        // ***DELINEATOR FOR REVIEW: then
         then: 'Check fails because locks are not up to date'
         def failure = runTasksAndFail(':check')
         failure.task(':verifyLocks').outcome == TaskOutcome.FAILED
         failure.output.contains(expectedError)
 
+        // ***DELINEATOR FOR REVIEW: and
         and: 'Can finally write locks once again'
         runTasks('--write-locks')
         runTasks('verifyLocks')
@@ -447,6 +480,7 @@ class VersionsLockPluginIntegrationSpec extends IntegrationSpec {
         gradleVersionNumber << GRADLE_VERSIONS
     }
 
+    // ***DELINEATOR FOR REVIEW: why_works
     def "#gradleVersionNumber: why works"() {
         setup:
         gradleVersion = gradleVersionNumber
@@ -458,9 +492,11 @@ class VersionsLockPluginIntegrationSpec extends IntegrationSpec {
             }
         '''.stripIndent(true)
 
+        // ***DELINEATOR FOR REVIEW: when
         when:
         runTasks('--write-locks')
 
+        // ***DELINEATOR FOR REVIEW: then
         then:
         def result = runTasks('why', '--dependency', 'slf4j-api')
         result.output.contains('org.slf4j:slf4j-api:1.7.25')
@@ -470,6 +506,7 @@ class VersionsLockPluginIntegrationSpec extends IntegrationSpec {
         gradleVersionNumber << GRADLE_VERSIONS
     }
 
+    // ***DELINEATOR FOR REVIEW: why_with_hash_works
     def "#gradleVersionNumber: why with hash works"() {
         setup:
         gradleVersion = gradleVersionNumber
@@ -481,9 +518,11 @@ class VersionsLockPluginIntegrationSpec extends IntegrationSpec {
             }
         '''.stripIndent(true)
 
+        // ***DELINEATOR FOR REVIEW: when
         when:
         runTasks('--write-locks')
 
+        // ***DELINEATOR FOR REVIEW: then
         then:
         def result = runTasks('why', '--hash', '400d4d2a') // slf4j-api
         result.output.contains('org.slf4j:slf4j-api:1.7.25')
@@ -493,6 +532,7 @@ class VersionsLockPluginIntegrationSpec extends IntegrationSpec {
         gradleVersionNumber << GRADLE_VERSIONS
     }
 
+    // ***DELINEATOR FOR REVIEW: why_with_comma_delimited_multiple_hashes_works
     def "#gradleVersionNumber: why with comma-delimited multiple hashes works"() {
         setup:
         gradleVersion = gradleVersionNumber
@@ -505,9 +545,11 @@ class VersionsLockPluginIntegrationSpec extends IntegrationSpec {
             }
         '''.stripIndent(true)
 
+        // ***DELINEATOR FOR REVIEW: when
         when:
         runTasks('--write-locks')
 
+        // ***DELINEATOR FOR REVIEW: then
         then:
         def result = runTasks('why', '--hash', '400d4d2a,050d6518') // both transitive dependencies
         result.output.contains('org.slf4j:slf4j-api:1.7.25')
@@ -519,6 +561,7 @@ class VersionsLockPluginIntegrationSpec extends IntegrationSpec {
         gradleVersionNumber << GRADLE_VERSIONS
     }
 
+    // ***DELINEATOR FOR REVIEW: does_not_fail_if_subproject_evaluated_later_applies_base_plugin_in_own_build_file
     def '#gradleVersionNumber: does not fail if subproject evaluated later applies base plugin in own build file'() {
         setup:
         gradleVersion = gradleVersionNumber
@@ -545,6 +588,7 @@ class VersionsLockPluginIntegrationSpec extends IntegrationSpec {
         gradleVersionNumber << GRADLE_VERSIONS
     }
 
+    // ***DELINEATOR FOR REVIEW: locks_platform
     def "#gradleVersionNumber: locks platform"() {
         setup:
         gradleVersion = gradleVersionNumber
@@ -556,9 +600,11 @@ class VersionsLockPluginIntegrationSpec extends IntegrationSpec {
             }
         """.stripIndent(true)
 
+        // ***DELINEATOR FOR REVIEW: when
         when:
         runTasks('--write-locks')
 
+        // ***DELINEATOR FOR REVIEW: then
         then:
         file('versions.lock').readLines() == [
                 '# Run ./gradlew writeVersionsLocks to regenerate this file. Blank lines are to minimize merge conflicts.',
@@ -570,6 +616,7 @@ class VersionsLockPluginIntegrationSpec extends IntegrationSpec {
         gradleVersionNumber << GRADLE_VERSIONS
     }
 
+    // ***DELINEATOR FOR REVIEW: verifyLocks_is_cacheable
     def "#gradleVersionNumber: verifyLocks is cacheable"() {
         setup:
         gradleVersion = gradleVersionNumber
@@ -583,9 +630,11 @@ class VersionsLockPluginIntegrationSpec extends IntegrationSpec {
 
         file('gradle.properties') << 'depVersion = 1.7.20'
 
+        // ***DELINEATOR FOR REVIEW: when
         when:
         runTasks('--write-locks')
 
+        // ***DELINEATOR FOR REVIEW: then
         then: 'verifyLocks is up to date the second time'
         runTasks('verifyLocks').task(':verifyLocks').outcome == TaskOutcome.SUCCESS
         runTasks('verifyLocks').task(':verifyLocks').outcome == TaskOutcome.UP_TO_DATE
@@ -595,6 +644,7 @@ class VersionsLockPluginIntegrationSpec extends IntegrationSpec {
     }
 
 
+    // ***DELINEATOR FOR REVIEW: verifyLocks_current_lock_state_does_not_get_poisoned_by_existing_lock_file
     def "#gradleVersionNumber: verifyLocks current lock state does not get poisoned by existing lock file"() {
         setup:
         gradleVersion = gradleVersionNumber
@@ -608,12 +658,15 @@ class VersionsLockPluginIntegrationSpec extends IntegrationSpec {
 
         file('gradle.properties') << 'depVersion = 1.7.20'
 
+        // ***DELINEATOR FOR REVIEW: when
         when:
         runTasks('--write-locks')
 
+        // ***DELINEATOR FOR REVIEW: then
         then: 'verifyLocks fails if we lower the dep version'
         def fail = runTasksAndFail('verifyLocks', '-PdepVersion=1.7.11')
 
+        // ***DELINEATOR FOR REVIEW: and
         and: 'it expects the correct version to be 1.7.11'
         fail.output.contains """\
                > Found dependencies whose dependents changed:
@@ -625,6 +678,7 @@ class VersionsLockPluginIntegrationSpec extends IntegrationSpec {
         gradleVersionNumber << GRADLE_VERSIONS
     }
 
+    // ***DELINEATOR FOR REVIEW: excludes_from_compileOnly_do_not_obscure_real_dependency
     def "#gradleVersionNumber: excludes from compileOnly do not obscure real dependency"() {
         setup:
         gradleVersion = gradleVersionNumber
@@ -640,9 +694,11 @@ class VersionsLockPluginIntegrationSpec extends IntegrationSpec {
             }
         """.stripIndent(true)
 
+        // ***DELINEATOR FOR REVIEW: when
         when:
         runTasks('--write-locks')
 
+        // ***DELINEATOR FOR REVIEW: then
         then: 'slf4j-api still appears in the lock file'
         file('versions.lock').readLines() == [
                 '# Run ./gradlew writeVersionsLocks to regenerate this file. Blank lines are to minimize merge conflicts.',
@@ -656,6 +712,7 @@ class VersionsLockPluginIntegrationSpec extends IntegrationSpec {
         gradleVersionNumber << GRADLE_VERSIONS
     }
 
+    // ***DELINEATOR FOR REVIEW: can_resolve_configuration_dependency
     def "#gradleVersionNumber: can resolve configuration dependency"() {
         setup:
         gradleVersion = gradleVersionNumber
@@ -697,6 +754,7 @@ class VersionsLockPluginIntegrationSpec extends IntegrationSpec {
         gradleVersionNumber << GRADLE_VERSIONS
     }
 
+    // ***DELINEATOR FOR REVIEW: inter_project_normal_dependency_works
     def "#gradleVersionNumber: inter-project normal dependency works"() {
         setup:
         gradleVersion = gradleVersionNumber
@@ -719,6 +777,7 @@ class VersionsLockPluginIntegrationSpec extends IntegrationSpec {
         gradleVersionNumber << GRADLE_VERSIONS
     }
 
+    // ***DELINEATOR FOR REVIEW: test_dependencies_appear_in_a_separate_block
     def "#gradleVersionNumber: test dependencies appear in a separate block"() {
         setup:
         gradleVersion = gradleVersionNumber
@@ -752,6 +811,7 @@ class VersionsLockPluginIntegrationSpec extends IntegrationSpec {
         gradleVersionNumber << GRADLE_VERSIONS
     }
 
+    // ***DELINEATOR FOR REVIEW: locks_dependencies_from_extra_source_sets_that_end_in_test
     def "#gradleVersionNumber: locks dependencies from extra source sets that end in test"() {
         setup:
         gradleVersion = gradleVersionNumber
@@ -791,6 +851,7 @@ class VersionsLockPluginIntegrationSpec extends IntegrationSpec {
         gradleVersionNumber << GRADLE_VERSIONS
     }
 
+    // ***DELINEATOR FOR REVIEW: versionsLock_testProject_works
     def "#gradleVersionNumber: versionsLock.testProject() works"() {
         setup:
         gradleVersion = gradleVersionNumber
@@ -821,6 +882,7 @@ class VersionsLockPluginIntegrationSpec extends IntegrationSpec {
         gradleVersionNumber << GRADLE_VERSIONS
     }
 
+    // ***DELINEATOR FOR REVIEW: constraints_on_production_do_not_affect_scope_of_test_only_dependencies
     def "#gradleVersionNumber: constraints on production do not affect scope of test only dependencies"() {
         setup:
         gradleVersion = gradleVersionNumber
@@ -856,6 +918,7 @@ class VersionsLockPluginIntegrationSpec extends IntegrationSpec {
         gradleVersionNumber << GRADLE_VERSIONS
     }
 
+    // ***DELINEATOR FOR REVIEW: published_constraints_are_derived_from_lock_file_with_local_constraints
     def "#gradleVersionNumber: published constraints are derived from lock file (with local constraints)"() {
         setup:
         // Test with local constraints enabled
@@ -901,6 +964,7 @@ class VersionsLockPluginIntegrationSpec extends IntegrationSpec {
 
         runTasks('--write-locks')
 
+        // ***DELINEATOR FOR REVIEW: when
         when:
         runTasks('generatePomFileForMavenPublication', 'generateMetadataFileForMavenPublication')
 
@@ -925,6 +989,7 @@ class VersionsLockPluginIntegrationSpec extends IntegrationSpec {
                 module: 'bar',
                 version: [requires: '1.2.3'])
 
+        // ***DELINEATOR FOR REVIEW: then
         then: "foo's metadata file has the right dependency constraints"
         def fooMetadataFilename = new File(projectDir, "foo/build/publications/maven/module.json")
         def fooMetadata = new ObjectMapper().readValue(fooMetadataFilename, MetadataFile)
@@ -940,6 +1005,7 @@ class VersionsLockPluginIntegrationSpec extends IntegrationSpec {
                         dependencyConstraints: [barDep, junitDep, logbackDep, slf4jDep])
         ] as Set
 
+        // ***DELINEATOR FOR REVIEW: and
         and: "bar's metadata file has the right dependency constraints"
         def barMetadataFilename = new File(projectDir, "bar/build/publications/maven/module.json")
         def barMetadata = new ObjectMapper().readValue(barMetadataFilename, MetadataFile)
@@ -959,6 +1025,7 @@ class VersionsLockPluginIntegrationSpec extends IntegrationSpec {
         gradleVersionNumber << GRADLE_VERSIONS
     }
 
+    // ***DELINEATOR FOR REVIEW: published_constraints_are_derived_from_lock_file_without_local_constraints
     def "#gradleVersionNumber: published constraints are derived from lock file (without local constraints)"() {
         setup:
         gradleVersion = gradleVersionNumber
@@ -995,6 +1062,7 @@ class VersionsLockPluginIntegrationSpec extends IntegrationSpec {
 
         runTasks('--write-locks')
 
+        // ***DELINEATOR FOR REVIEW: when
         when:
         runTasks('generatePomFileForMavenPublication', 'generateMetadataFileForMavenPublication')
 
@@ -1011,6 +1079,7 @@ class VersionsLockPluginIntegrationSpec extends IntegrationSpec {
                 module: 'slf4j-api',
                 version: [requires: '1.7.25'])
 
+        // ***DELINEATOR FOR REVIEW: then
         then: "foo's metadata file has the right dependency constraints"
         def fooMetadataFilename = new File(projectDir, "foo/build/publications/maven/module.json")
         def fooMetadata = new ObjectMapper().readValue(fooMetadataFilename, MetadataFile)
@@ -1026,6 +1095,7 @@ class VersionsLockPluginIntegrationSpec extends IntegrationSpec {
                         dependencyConstraints: [junitDep, logbackDep, slf4jDep]),
         ] as Set
 
+        // ***DELINEATOR FOR REVIEW: and
         and: "bar's metadata file has the right dependency constraints"
         def barMetadataFilename = new File(projectDir, "bar/build/publications/maven/module.json")
         def barMetadata = new ObjectMapper().readValue(barMetadataFilename, MetadataFile)
@@ -1045,7 +1115,9 @@ class VersionsLockPluginIntegrationSpec extends IntegrationSpec {
         gradleVersionNumber << GRADLE_VERSIONS
     }
 
+    // ***DELINEATOR FOR REVIEW: can_depend_on_artifact
     def "#gradleVersionNumber: can depend on artifact"() {
+        setup:
         gradleVersion = gradleVersionNumber
 
         buildFile << """
@@ -1062,7 +1134,9 @@ class VersionsLockPluginIntegrationSpec extends IntegrationSpec {
         gradleVersionNumber << GRADLE_VERSIONS
     }
 
+    // ***DELINEATOR FOR REVIEW: direct_test_dependency_that_is_also_a_production_transitive_ends_up_in_production
     def "#gradleVersionNumber: direct test dependency that is also a production transitive ends up in production"() {
+        setup:
         gradleVersion = gradleVersionNumber
 
         buildFile << """
@@ -1087,7 +1161,9 @@ class VersionsLockPluginIntegrationSpec extends IntegrationSpec {
         gradleVersionNumber << GRADLE_VERSIONS
     }
 
+    // ***DELINEATOR FOR REVIEW: does_not_write_lock_file_when_property_gcvSkipWriteLocks_is_set
     def "#gradleVersionNumber: does not write lock file when property 'gcvSkipWriteLocks' is set"() {
+        setup:
         gradleVersion = gradleVersionNumber
 
         buildFile << """
@@ -1114,6 +1190,7 @@ class VersionsLockPluginIntegrationSpec extends IntegrationSpec {
         gradleVersionNumber << GRADLE_VERSIONS
     }
 
+    // ***DELINEATOR FOR REVIEW: verifyLockfile
     boolean verifyLockfile(File projectDir, String... lines) {
         // Gradle 7+ only uses a single lockfile per project:
         // https://docs.gradle.org/current/userguide/upgrading_version_6.html#locking_single
